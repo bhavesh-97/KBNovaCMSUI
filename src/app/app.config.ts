@@ -2,14 +2,17 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChang
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
+const isBrowser = typeof window !== 'undefined';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes), provideClientHydration(withEventReplay()),
-     provideAnimationsAsync(),
+    provideRouter(routes),
+    provideAnimationsAsync(),
         providePrimeNG({
             theme: {
                 preset: Aura
@@ -17,11 +20,4 @@ export const appConfig: ApplicationConfig = {
         })
   ]
 };
-function provideAnimationsAsync(): import("@angular/core").Provider | import("@angular/core").EnvironmentProviders {
-  throw new Error('Function not implemented.');
-}
-
-function providePrimeNG(arg0: { theme: { preset: any; }; }): import("@angular/core").Provider | import("@angular/core").EnvironmentProviders {
-  throw new Error('Function not implemented.');
-}
 
