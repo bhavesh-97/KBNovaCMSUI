@@ -25,7 +25,9 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+                "node_modules/bootstrap/dist/css/bootstrap.min.css",
+                "primeicons/primeicons.css",
+                "src/styles.css"
             ]
           },
           "configurations": {
