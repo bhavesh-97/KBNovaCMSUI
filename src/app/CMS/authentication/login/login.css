@@ -1,0 +1,353 @@
+/* login.component.css */
+/* Include main.css and util.css styles here or import them globally in angular.json/styles */
+
+/* Fonts - Add to global styles or here */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
+/* Global resets and utilities from provided files */
+* {
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+
+body, html {
+  height: 100%;
+  font-family: 'Poppins', sans-serif;
+}
+
+a {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #666666;
+  margin: 0px;
+  transition: all 0.4s;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #57b846;
+}
+
+input {
+  outline: none;
+  border: none;
+}
+
+input:focus {
+  border-color: transparent !important;
+}
+
+/* Limiter and container from main.css */
+.limiter {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.container-login100 {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  background: linear-gradient(-135deg, #c850c0, #4158d0);
+}
+
+.wrap-login100 {
+  width: 960px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 177px 130px 33px 95px;
+}
+
+/* Image side */
+.login100-pic {
+  width: 316px;
+}
+
+.login100-pic img {
+  max-width: 100%;
+}
+
+/* Form side */
+.login100-form {
+  width: 290px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login100-form-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  color: #333333;
+  line-height: 1.2;
+  text-align: center;
+  width: 100%;
+  padding-bottom: 54px;
+}
+
+/* Input wrappers */
+.wrap-input100 {
+  position: relative;
+  width: 100%;
+  z-index: 1;
+  margin-bottom: 10px;
+}
+
+.input100 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #666666;
+  display: block;
+  width: 100%;
+  background: #e6e6e6;
+  height: 50px;
+  border-radius: 25px;
+  padding: 0 30px 0 68px;
+}
+
+/* PrimeNG overrides */
+.p-inputtext.input100 {
+  background: #e6e6e6;
+  border-radius: 25px;
+  padding: 0 30px 0 68px;
+  height: 50px;
+}
+
+.p-inputtext.input100:focus {
+  box-shadow: none; /* GSAP will handle */
+}
+
+.focus-input100 {
+  display: block;
+  position: absolute;
+  border-radius: 25px;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0px 0px 0px 0px;
+  color: rgba(87, 184, 70, 0.8);
+}
+
+.symbol-input100 {
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  border-radius: 25px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding-left: 35px;
+  pointer-events: none;
+  color: #666666;
+  transition: all 0.4s;
+}
+
+/* PrimeNG icon adaptation */
+.p-input-icon-left {
+  position: absolute;
+  left: 35px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666666;
+}
+
+.p-input-icon-left i {
+  color: #666666;
+  transition: color 0.4s;
+}
+
+/* Button styles */
+.container-login100-form-btn {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-top: 20px;
+}
+
+.login100-form-btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #fff;
+  text-transform: uppercase;
+  width: 100%;
+  height: 50px;
+  border-radius: 25px;
+  background: #57b846;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 25px;
+  transition: all 0.4s;
+  border: none;
+}
+
+/* PrimeNG button overrides */
+.p-button.login100-form-btn {
+  width: 100%;
+  height: 50px;
+  border-radius: 25px;
+  background: #57b846;
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.p-button.login100-form-btn:hover:not(:disabled) {
+  background: #333333;
+}
+
+.p-button.login100-form-btn:disabled {
+  opacity: 0.6;
+}
+
+/* Text styles */
+.txt1 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #999999;
+}
+
+.txt2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #666666;
+}
+
+/* Alert validation */
+.validate-input {
+  position: relative;
+}
+
+.alert-validate::before {
+  content: attr(data-validate);
+  position: absolute;
+  max-width: 70%;
+  background-color: white;
+  border: 1px solid #c80000;
+  border-radius: 13px;
+  padding: 4px 25px 4px 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 8px;
+  pointer-events: none;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  color: #c80000;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.4s;
+  z-index: 10;
+}
+
+.alert-validate::after {
+  content: "\f06a";
+  font-family: 'FontAwesome';
+  display: block;
+  position: absolute;
+  color: #c80000;
+  font-size: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 13px;
+}
+
+.alert-validate:hover::before {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Responsive - Adapted from main.css */
+@media (max-width: 992px) {
+  .wrap-login100 {
+    padding: 177px 90px 33px 85px;
+  }
+  .login100-pic {
+    width: 35%;
+  }
+  .login100-form {
+    width: 50%;
+  }
+  .alert-validate::before {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .wrap-login100 {
+    padding: 100px 80px 33px 80px;
+  }
+  .login100-pic {
+    display: none;
+  }
+  .login100-form {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .wrap-login100 {
+    padding: 100px 15px 33px 15px;
+  }
+}
+
+/* Bootstrap integration - Use Bootstrap classes for grid if needed, but here flex is used */
+/* Assume Bootstrap is imported globally */
+.row {
+  display: flex;
+}
+
+.col-md-6 {
+  flex: 0 0 50%;
+}
+
+/* Utility classes from util.css - Selectively include key ones or import fully */
+.fs-13 { font-size: 13px; }
+.fs-15 { font-size: 15px; }
+.fs-24 { font-size: 24px; }
+.p-t-10 { padding-top: 10px; }
+.p-t-20 { padding-top: 20px; }
+.p-t-50 { padding-top: 50px; }
+.p-b-10 { padding-bottom: 10px; }
+.p-b-30 { padding-bottom: 30px; }
+.p-b-50 { padding-bottom: 50px; }
+.p-l-20 { padding-left: 20px; }
+.p-r-20 { padding-right: 20px; }
+.p-l-55 { padding-left: 55px; }
+.p-r-55 { padding-right: 55px; }
+.p-t-80 { padding-top: 80px; }
+.flex-col-c {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.text-center {
+  text-align: center;
+}
