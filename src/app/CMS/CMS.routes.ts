@@ -7,4 +7,8 @@ export const CMSRoutes: Routes = [
      },
      { path: '', redirectTo: 'login', pathMatch: 'full' },
  
+     {
+            path: 'dashboard',
+            loadComponent: () => import('./main/dashboard/dashboard').then(m => m.Dashboard)
+     },
 ];

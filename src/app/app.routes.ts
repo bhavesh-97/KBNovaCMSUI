@@ -6,9 +6,14 @@ export const routes: Routes = [
         path: 'Web',
         loadChildren: () => import('./Web/Web.routes').then(m => m.WebRoutes),
     },
+    // { 
+    //     path: '', 
+    //     loadChildren: () => import('./Web/Web.routes').then(m => m.WebRoutes),
+    //     pathMatch: 'full' 
+    // },
     { 
         path: '', 
-        loadChildren: () => import('./Web/Web.routes').then(m => m.WebRoutes),
+        loadChildren: () => import('./CMS/CMS.routes').then(m => m.CMSRoutes),
         pathMatch: 'full' 
     },
     {
