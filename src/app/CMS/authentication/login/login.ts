@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule,ReactiveFormsModule, InputTextModule, ButtonModule],
+  imports: [CommonModule,ReactiveFormsModule, InputTextModule, ButtonModule,],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
@@ -33,10 +33,11 @@ export class Login implements AfterViewInit {
       input.addEventListener('focus', () => {
         gsap.to(input, {
           duration: 0.5,
-          boxShadow: '0px 0px 70px 25px rgba(87, 184, 70, 0.8)',
-          opacity: 0,
+          // boxShadow: '0px 0px 70px 25px rgba(222, 224, 221, 0.8)',
+          // opacity: 0,
           ease: 'power2.inOut'
         });
+        
         // Animate symbol color change if icons are present
         const symbol = input.parentElement?.querySelector('.symbol-input100 i');
         if (symbol) {
