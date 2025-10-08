@@ -13,40 +13,37 @@
           <i class="pi pi-user" aria-hidden="true"></i> Member Login
         </span>
 
-        <!-- Email Input with PrimeNG -->
-        <div class="wrap-input100 validate-input p-b-10" [class.alert-validate]="emailShowError" data-validate="Email is required or invalid">
-          <input
-            pInputText
-            id="email"
-            type="email"
-            class="input100"
-            formControlName="email"
-            placeholder="Email"
-            (focus)="emailShowError = false"
-          />
-          <span class="focus-input100"></span>
-          <span class="symbol-input100">
-            <i class="pi pi-envelope" aria-hidden="true"></i>
-          </span>
+        <div class="wrap-input100 validate-input p-b-10" [class.alert-validate]="emailShowError" [attr.data-validate]="showEmail ? 'Email is required or invalid' : 'Mobile number is required or invalid'">
+            <input
+              pInputText
+              id="emailOrMobile"
+              [type]="showEmail ? 'email' : 'tel'"
+              class="input100"
+              [formControlName]="showEmail ? 'email' : 'mobile'"
+              [placeholder]="showEmail ? 'Email' : 'Mobile Number'"
+              (focus)="emailShowError = false"
+              />
+              <span class="focus-input100"></span>
+              <span class="symbol-input100" (click)="toggleEmailMobile()" style="cursor: pointer;">
+                  <i [ngClass]="showEmail ? 'pi pi-envelope' : 'pi pi-phone'" aria-hidden="true"></i>
+              </span>
         </div>
 
-        <!-- Password Input with PrimeNG -->
         <div class="wrap-input100 validate-input p-b-10" [class.alert-validate]="passwordShowError" data-validate="Password is required">
           <input
             pInputText
             id="password"
-            type="password"
+            [type]="showPassword ? 'text' : 'password'"
             class="input100"
             formControlName="password"
             placeholder="Password"
             (focus)="passwordShowError = false"
           />
           <span class="focus-input100"></span>
-          <span class="symbol-input100">
-            <i class="pi pi-lock" aria-hidden="true"></i>
-          </span>
+           <span class="symbol-input100" (click)="togglePasswordVisibility()" style="cursor: pointer;">
+                <i [ngClass]="showPassword ? 'pi pi-lock-open' : 'pi pi-lock'" aria-hidden="true"></i>
+            </span>
         </div>
-
         <!-- Login Button with PrimeNG -->
         <div class="container-login100-form-btn p-t-10">
           <button
