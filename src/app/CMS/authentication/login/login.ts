@@ -1,15 +1,13 @@
 import { Component, AfterViewInit, inject, ElementRef,ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { gsap } from 'gsap';
-import { CommonModule } from '@angular/common';
+import { SharedImports } from '../../shared/imports/shared-imports.ts';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule,ReactiveFormsModule, InputTextModule, ButtonModule,TooltipModule],
+  imports: [...SharedImports, TooltipModule],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
