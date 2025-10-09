@@ -148,7 +148,25 @@ input:focus {
   box-shadow: 0px 0px 0px 0px;
   color: rgba(87, 184, 70, 0.8);
 }
+/* Style for the error icon */
+.error-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 13px; /* Align with the red square position */
+  color: #c80000; /* Matches the red error color */
+  font-size: 15px;
+  z-index: 10;
+}
 
+/* Adjust input padding to accommodate error icon */
+.input100 {
+  padding-right: 40px; /* Extra space for error icon */
+}
+
+.p-inputmask.input100 {
+  padding-right: 40px; /* Extra space for error icon */
+}
 .symbol-input100 {
   font-size: 15px;
   display: flex;
@@ -159,8 +177,8 @@ input:focus {
   left: 0;
   width: 100%;
   height: 100%;
-  padding-left: 25px;
-  padding-bottom: 5px;
+  padding-left: 24px;
+  padding-bottom: 8px;
   pointer-events: none;
   color: #666666;
   transition: all 0.4s;
@@ -257,7 +275,7 @@ input:focus {
   padding: 4px 25px 4px 10px;
   top: 50%;
   transform: translateY(-50%);
-  right: 8px;
+  right: 45px;
   pointer-events: none;
   font-family: 'Poppins', sans-serif;
   font-weight: 500;
@@ -272,20 +290,22 @@ input:focus {
 }
 
 .alert-validate::after {
-  content: "\f06a";
-  font-family: 'FontAwesome';
+  content: "\e90c"; /* PrimeNG exclamation triangle icon*/
+  font-family: 'primeicons'; /* Use PrimeNG icons */
   display: block;
   position: absolute;
   color: #c80000;
   font-size: 15px;
-  top: 50%;
+  top: 46%;
   transform: translateY(-50%);
-  right: 13px;
+  right: 19px; 
+  z-index: 10;
 }
 
 .alert-validate:hover::before {
   visibility: visible;
   opacity: 1;
+  right: 45px;
 }
 
 /* Responsive */

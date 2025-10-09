@@ -1,1 +1,24 @@
-/* You can add global styles to this file, and also import other style files */
+/* Custom toast class with animation */
+.toast-animate {
+  animation: toastEnter 0.5s ease-out, toastExit 0.5s ease-in 4.5s forwards;
+  position: relative;   /* required for progress bar positioning */
+  overflow: hidden;
+}
+
+/* Customize progress bar appearance */
+.toast-animate .toast-progress {
+  height: 5px;                /* thickness of the bar */
+  background-color: #d8d8d8;  /* change color */
+  border-radius: 2px;         /* rounded corners */
+  bottom: 0;                  /* stick to bottom of toast */
+}
+
+@keyframes toastEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toastExit {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(10px); }
+}

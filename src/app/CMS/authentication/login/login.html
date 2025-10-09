@@ -16,6 +16,7 @@
         <div class="wrap-input100 validate-input p-b-10" [class.alert-validate]="emailShowError" [attr.data-validate]="showEmail ? 'Email is required or invalid' : 'Mobile number is required or invalid'">
             <input
               pInputText
+              #inputField
               id="emailOrMobile"
               [type]="showEmail ? 'email' : 'tel'"
               class="input100"
@@ -32,6 +33,7 @@
         <div class="wrap-input100 validate-input p-b-10" [class.alert-validate]="passwordShowError" data-validate="Password is required">
           <input
             pInputText
+            #inputField
             id="password"
             [type]="showPassword ? 'text' : 'password'"
             class="input100"

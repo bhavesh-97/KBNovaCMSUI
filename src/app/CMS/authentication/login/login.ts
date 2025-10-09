@@ -1,8 +1,11 @@
-import { Component, AfterViewInit, inject, ElementRef,ViewChild } from '@angular/core';
+import { Component, AfterViewInit, inject, ElementRef,ViewChild, QueryList, ViewChildren,Renderer2 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { gsap } from 'gsap';
 import { SharedImports } from '../../shared/imports/shared-imports.ts';
+import { FormFieldConfig, FormUtils } from '../../shared/utilities/form-utils.ts.js';
+import { ValidationRules } from '../../shared/utilities/validation-rules.enum.js';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -13,34 +16,66 @@ import { SharedImports } from '../../shared/imports/shared-imports.ts';
 })
 export class Login implements AfterViewInit {
   @ViewChild('tiltContainer', { static: false }) tiltContainer!: ElementRef<HTMLDivElement>;
+  @ViewChildren('inputField') inputElements!: QueryList<ElementRef>;
+
   private fb = inject(FormBuilder);
+  private renderer = inject(Renderer2);
+  private toastr = inject(ToastrService);
   loginForm: FormGroup;
   emailShowError = false;
   passwordShowError = false;
   showPassword = false; 
   showEmail = true;
 
+  // Form field configurations
+  private formFields: FormFieldConfig[] = [
+    { name: 'email', isMandatory: false, events: [{ type: 'focusout', validationRule: ValidationRules.EmailID }] },
+    { name: 'mobile', isMandatory: false, events: [{ type: 'focusout', validationRule: ValidationRules.NumberOnly }] },
+    { name: 'password', isMandatory: true, events: [{ type: 'focusout', validationRule: ValidationRules.PasswordStrength }] },
+    // { name: 'password', isMandatory: true, events: [{ type: 'focusout', validationRule: ValidationRules.PasswordStrength }, { type: 'keypress', validationRule: ValidationRules.PasswordStrength }] },
+  ];
+
   constructor() {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      mobile: ['', [Validators.pattern(/^\+?\d{10,15}$/)]], // Mobile optional unless selected
-      password: ['', Validators.required]
-    });
+    // this.loginForm = this.fb.group({
+    //   email: ['', [Validators.required, Validators.email]],
+    //   mobile: ['', [Validators.pattern(/^\+?\d{10,15}$/)]], 
+    //   password: ['', Validators.required]
+    // });
+    this.loginForm = FormUtils.createFormGroup(this.formFields, this.fb);
   }
-toggleEmailMobile(): void {
-  this.showEmail = !this.showEmail;
-  this.emailShowError = false;
-  this.loginForm.get('email')?.reset();
-  this.loginForm.get('mobile')?.reset();
-}
- togglePasswordVisibility(): void {
-  console.log('Icon clicked');
-  this.showPassword = !this.showPassword;
-}
+  get email() { return this.loginForm.get('email'); }
+  get password() { return this.loginForm.get('password'); }
+  get mobile() { return this.loginForm.get('mobile'); }
+
+  // toggleEmailMobile(): void {
+  //   this.showEmail = !this.showEmail;
+  //   this.emailShowError = false;
+  //   this.loginForm.get('email')?.reset();
+  //   this.loginForm.get('mobile')?.reset();
+  // }
+   toggleEmailMobile(): void {
+    this.showEmail = !this.showEmail;
+    this.emailShowError = false;
+    const element = this.inputElements.find(el => el.nativeElement.id === (this.showEmail ? 'email' : 'mobile'))?.nativeElement as HTMLInputElement;
+    const control = this.loginForm.get(this.showEmail ? 'email' : 'mobile');
+    if (element && control) {
+      FormUtils.updateValidationRule(element, true, this.renderer);
+      control.reset();
+    }
+  }
+  togglePasswordVisibility(): void {
+    console.log('Icon clicked');
+    this.showPassword = !this.showPassword;
+  }
   ngAfterViewInit() {
-    // GSAP animation for input focus (adapting the CSS shadow animation)
-    const inputs = document.querySelectorAll('.p-inputtext');
-     inputs.forEach((input) => {
+      FormUtils.registerFormFieldEventListeners(this.formFields, this.inputElements.toArray(), this.renderer);
+       const activeControlName = this.showEmail ? 'email' : 'mobile';
+      const control = this.loginForm.get(activeControlName) as any;
+      const element = control?.nativeElement as HTMLInputElement;
+      FormUtils.updateValidationRule(element, true, this.renderer);
+
+      const inputs = document.querySelectorAll('.p-inputtext');
+      inputs.forEach((input) => {
         input.addEventListener('focus', () => {
             gsap.to(input, {
                     duration: 0.5,
@@ -86,7 +121,7 @@ toggleEmailMobile(): void {
         const y = e.clientY - rect.top;
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-        const rotateX = (y - centerY) / 10; // Adjust sensitivity
+        const rotateX = (y - centerY) / 10;
         const rotateY = (centerX - x) / 10;
 
         gsap.to(img, {
@@ -113,6 +148,7 @@ toggleEmailMobile(): void {
   }
 
  onSubmit() {
+  this.toastr.success('This is a success toast!', 'Success')
   if (this.loginForm.valid && (this.showEmail ? this.email?.valid : this.mobile?.valid)) {
     console.log('Login submitted', this.showEmail ? { email: this.email?.value, password: this.password?.value } : { mobile: this.mobile?.value, password: this.password?.value });
   } else {
@@ -123,8 +159,4 @@ toggleEmailMobile(): void {
     });
   }
 }
-
-  get email() { return this.loginForm.get('email'); }
-  get password() { return this.loginForm.get('password'); }
-  get mobile() { return this.loginForm.get('mobile'); }
 }

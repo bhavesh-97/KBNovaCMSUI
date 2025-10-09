@@ -1,19 +1,19 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
-const isBrowser = typeof window !== 'undefined';
-
+import { provideToastr } from 'ngx-toastr';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideAnimationsAsync('animations'),
+    importProvidersFrom(BrowserAnimationsModule),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideAnimationsAsync(),
-        providePrimeNG({
+    providePrimeNG({
             theme: {
                 preset: Aura,
                 options: {
@@ -22,7 +22,17 @@ export const appConfig: ApplicationConfig = {
                     cssLayer: false
                 }
             }
-        })
+    }),
+   provideToastr({
+  timeOut: 5000,
+  positionClass: 'toast-top-right',
+  preventDuplicates: true,
+  closeButton: true,
+  progressBar: true,         // <-- must be true
+  tapToDismiss: true,
+  toastClass: 'ngx-toastr toast-animate',
+})
   ]
 };
+
 
