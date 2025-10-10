@@ -6,6 +6,7 @@ import { SharedImports } from '../../shared/imports/shared-imports.ts';
 import { FormFieldConfig, FormUtils } from '../../shared/utilities/form-utils.ts.js';
 import { ValidationRules } from '../../shared/utilities/validation-rules.enum.js';
 import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../../services/notification.service.js';
 
 @Component({
   selector: 'app-login',
@@ -17,21 +18,24 @@ import { ToastrService } from 'ngx-toastr';
 export class Login implements AfterViewInit {
   @ViewChild('tiltContainer', { static: false }) tiltContainer!: ElementRef<HTMLDivElement>;
   @ViewChildren('inputField') inputElements!: QueryList<ElementRef>;
+  public notificationService = inject(NotificationService);
 
   private fb = inject(FormBuilder);
   private renderer = inject(Renderer2);
   private toastr = inject(ToastrService);
+  private FormUtils = inject(FormUtils);
   loginForm: FormGroup;
   emailShowError = false;
   passwordShowError = false;
   showPassword = false; 
-  showEmail = true;
+  showEmail = false;
+
 
   // Form field configurations
   private formFields: FormFieldConfig[] = [
-    { name: 'email', isMandatory: false, events: [{ type: 'focusout', validationRule: ValidationRules.EmailID }] },
-    { name: 'mobile', isMandatory: false, events: [{ type: 'focusout', validationRule: ValidationRules.NumberOnly }] },
-    { name: 'password', isMandatory: true, events: [{ type: 'focusout', validationRule: ValidationRules.PasswordStrength }] },
+    { name: 'email', isMandatory: true, validationMessage: 'Please enter a valid email address.', events: [{ type: 'focusout', validationRule: ValidationRules.EmailID }] },
+    { name: 'mobile', isMandatory: false,validationMessage: 'Please enter a valid mobile number.', events: [{ type: 'focusout', validationRule: ValidationRules.NumberOnly },{ type: 'keypress', validationRule: ValidationRules.NumberOnly }] },
+    { name: 'password', isMandatory: true, validationMessage: 'Password must be strong and meet all requirements.', events: [{ type: 'focusout', validationRule: ValidationRules.PasswordStrength }] },
     // { name: 'password', isMandatory: true, events: [{ type: 'focusout', validationRule: ValidationRules.PasswordStrength }, { type: 'keypress', validationRule: ValidationRules.PasswordStrength }] },
   ];
 
@@ -41,7 +45,7 @@ export class Login implements AfterViewInit {
     //   mobile: ['', [Validators.pattern(/^\+?\d{10,15}$/)]], 
     //   password: ['', Validators.required]
     // });
-    this.loginForm = FormUtils.createFormGroup(this.formFields, this.fb);
+    this.loginForm = this.FormUtils.createFormGroup(this.formFields, this.fb);
   }
   get email() { return this.loginForm.get('email'); }
   get password() { return this.loginForm.get('password'); }
@@ -54,26 +58,48 @@ export class Login implements AfterViewInit {
   //   this.loginForm.get('mobile')?.reset();
   // }
    toggleEmailMobile(): void {
+    debugger;
     this.showEmail = !this.showEmail;
     this.emailShowError = false;
-    const element = this.inputElements.find(el => el.nativeElement.id === (this.showEmail ? 'email' : 'mobile'))?.nativeElement as HTMLInputElement;
-    const control = this.loginForm.get(this.showEmail ? 'email' : 'mobile');
-    if (element && control) {
-      FormUtils.updateValidationRule(element, true, this.renderer);
-      control.reset();
-    }
+    this.toggleFieldValidation();
   }
   togglePasswordVisibility(): void {
     console.log('Icon clicked');
     this.showPassword = !this.showPassword;
+  } 
+  toggleFieldValidation() {
+    const fieldName = this.showEmail ? 'email' : 'mobile';
+    const field = this.formFields.find(f => f.name === fieldName);
+    const element = this.inputElements.first?.nativeElement as HTMLInputElement;
+    const control = this.loginForm.get(fieldName);
+    if (field && control && element) {
+      this.FormUtils.updateValidationRule(element, field, true, this.renderer, control);
+      control.reset();
+    }
   }
+  private initFieldListeners(): void {
+  this.FormUtils.registerFormFieldEventListeners(
+    this.formFields,
+    this.inputElements.toArray(),
+    this.renderer,
+    this.loginForm
+  );
+  this.toggleFieldValidation();
+}
   ngAfterViewInit() {
-      FormUtils.registerFormFieldEventListeners(this.formFields, this.inputElements.toArray(), this.renderer);
-       const activeControlName = this.showEmail ? 'email' : 'mobile';
-      const control = this.loginForm.get(activeControlName) as any;
-      const element = control?.nativeElement as HTMLInputElement;
-      FormUtils.updateValidationRule(element, true, this.renderer);
+      // this.FormUtils.registerFormFieldEventListeners(this.formFields, this.inputElements.toArray(), this.renderer,this.loginForm);
+      // this.toggleFieldValidation();
+        // Run once when the view first initializes
+  this.initFieldListeners();
 
+  // Re-run when the inputs change (e.g. showEmail toggles)
+  this.inputElements.changes.subscribe(() => {
+    this.initFieldListeners();
+  });
+    // Debug: Log inputElements
+    console.log('inputElements:', this.inputElements.toArray().map(el => ({
+      formControlName: el.nativeElement.getAttribute('formControlName')
+    })));
       const inputs = document.querySelectorAll('.p-inputtext');
       inputs.forEach((input) => {
         input.addEventListener('focus', () => {

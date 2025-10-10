@@ -24,6 +24,28 @@
               [placeholder]="showEmail ? 'Email' : 'Mobile Number'"
               (focus)="emailShowError = false"
               />
+          <!-- @if (showEmail) {
+              <input
+                pInputText
+                #inputField
+                type="email"
+                class="input100"
+                formControlName="email"
+                placeholder="Email"
+                (focus)="emailShowError = false"
+              />
+          } @else {
+            <input
+                pInputText
+                #inputField
+                type="tel"
+                class="input100"
+                formControlName="mobile"
+                placeholder="Mobile Number"
+                (focus)="emailShowError = false"
+              />
+        } -->
+
               <span class="focus-input100"></span>
               <span class="symbol-input100" (click)="toggleEmailMobile()" style="cursor: pointer;">
                   <i [ngClass]="showEmail ? 'pi pi-envelope' : 'pi pi-phone'" aria-hidden="true"></i>

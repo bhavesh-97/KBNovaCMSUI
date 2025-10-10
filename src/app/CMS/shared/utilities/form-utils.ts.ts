@@ -1,10 +1,16 @@
-import { FormBuilder, FormGroup, ValidatorFn } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidatorFn } from '@angular/forms';
 import { ValidationRules } from "./validation-rules.enum";
-import { ElementRef, Renderer2 } from '@angular/core';
-
+import { ElementRef, inject, Injectable, Renderer2 } from '@angular/core';
+import { NotificationService } from '../../services/notification.service';
+@Injectable({
+  providedIn: 'root'
+})
 export class FormUtils {
+  public notificationService = inject(NotificationService);
+
+  private listeners: { [key: string]: () => void } = {};
   // Map validation rules to regex patterns
-  private static regexMap: Record<ValidationRules, RegExp> = {
+  public regexMap: Record<ValidationRules, RegExp> = {
     [ValidationRules.AlphanumericOnly]: /^[a-zA-Z0-9]*$/,                                  // e.g., abc123
     [ValidationRules.NumberOnly]: /^[0-9]*$/,                                              // e.g., 12345
     [ValidationRules.LettersOnly]: /^[a-zA-Z]*$/,                                          // e.g., abc
@@ -23,91 +29,132 @@ export class FormUtils {
     [ValidationRules.NoSpecialChars]: /^[^!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]*$/,          // e.g., abc123
   };
 
-  // Create FormGroup based on form field configurations
-  static createFormGroup(formFields: FormFieldConfig[], fb: FormBuilder): FormGroup {
+    // Default error messages for validation rules
+  private errorMessages: Record<ValidationRules, string> = {
+    [ValidationRules.AlphanumericOnly]: 'Only alphanumeric characters are allowed.',
+    [ValidationRules.NumberOnly]: 'Only numbers are allowed.',
+    [ValidationRules.LettersOnly]: 'Only letters are allowed.',
+    [ValidationRules.LettersWithWhiteSpace]: 'Only letters and spaces are allowed.',
+    [ValidationRules.DecimalOnly]: 'Enter a valid decimal number.',
+    [ValidationRules.EmailID]: 'Please enter a valid email address.',
+    [ValidationRules.Pincode]: 'Enter a valid 6-digit pincode.',
+    [ValidationRules.IFSCCode]: 'Enter a valid IFSC code (e.g., ABCD0123456).',
+    [ValidationRules.Address]: 'Enter a valid address with letters, numbers, and basic punctuation.',
+    [ValidationRules.MobileNoWithSeries]: 'Enter a valid mobile number.',
+    [ValidationRules.AgeAbove18Years]: 'Enter a valid age (numbers only).',
+    [ValidationRules.AccountNumber]: 'Enter a valid account number.',
+    [ValidationRules.HouseOrSurveyNumber]: 'Enter a valid house or survey number.',
+    [ValidationRules.PasswordStrength]: 'Password must be at least 8 characters long with an uppercase letter, lowercase letter, and number.',
+    [ValidationRules.MobileWithCountryCode]: 'Enter a valid mobile number with country code (e.g., +1234567890).',
+    [ValidationRules.NoSpecialChars]: 'Special characters are not allowed.',
+  };
+
+ // Create FormGroup based on form field configurations
+  createFormGroup(formFields: FormFieldConfig[], fb: FormBuilder): FormGroup {
     const controlsConfig: { [key: string]: any } = {};
     formFields.forEach((field) => {
-      controlsConfig[field.name] = ['', field.isMandatory ? [this.getValidator(field.events?.[0]?.validationRule)] : []];
+      const validators: ValidatorFn[] = [];
+      if (field.isMandatory && field?.events?.[0]?.validationRule) {
+        validators.push(this.getValidator(field.events[0].validationRule, field.validationMessage, field.name));
+      }
+      controlsConfig[field.name] = ['', validators];
     });
-    
     return fb.group(controlsConfig);
   }
+
   // Register event listeners for form fields
-  static registerFormFieldEventListeners(formFields: FormFieldConfig[], elementRefs: ElementRef[], renderer: Renderer2): void {
+  registerFormFieldEventListeners(
+    formFields: FormFieldConfig[],
+    elementRefs: ElementRef[],
+    renderer: Renderer2,
+    formGroup: FormGroup
+  ): void {
     formFields.forEach((field, index) => {
       const element = elementRefs[index]?.nativeElement as HTMLInputElement;
       if (element) {
         field.events?.forEach((event) => {
-          renderer.listen(element, event.type, (e: Event) =>
-            this.handleEvent(e, event.validationRule, element, renderer)
-          );
+          renderer.listen(element, event.type, (e: Event) => {
+            if (e.type === event.type) {
+              this.handleEvent(e, event.validationRule, element, renderer, field, formGroup.controls[field.name]);
+            }
+          });
         });
       }
     });
   }
 
-  // Handle individual events
-   static handleEvent(event: Event, rule: ValidationRules, element: HTMLInputElement, renderer: Renderer2): void {
+    // Handle individual events
+  handleEvent(
+    event: Event,
+    rule: ValidationRules,
+    element: HTMLInputElement,
+    renderer: Renderer2,
+    field: FormFieldConfig,
+    formControl: AbstractControl
+  ): void {
     const regex = this.regexMap[rule];
     if (!regex) return;
-
     if (event.type === 'keypress') {
-            debugger;
+      console.log(event);
       const char = (event as KeyboardEvent).key;
-      if (!regex.test(char)) {
-        event.preventDefault();
+      if (!regex.test(char)) {   
+        event.preventDefault(); 
       }
     }
 
     if (event.type === 'focusout') {
+      const isEmpty = !element.value;
       const isValid = regex.test(element.value);
-      if (!isValid) {
-        renderer.addClass(element, 'invalid-input');
-        const wrapDiv = element.closest('.wrap-input100') as HTMLElement;
-        if (wrapDiv) {
-          renderer.addClass(wrapDiv, 'alert-validate');
-        }
-      } else {
-        renderer.removeClass(element, 'invalid-input');
-        const wrapDiv = element.closest('.wrap-input100') as HTMLElement;
-        if (wrapDiv) {
-          renderer.removeClass(wrapDiv, 'alert-validate');
-        }
+debugger;
+      if (field.isMandatory && isEmpty) {
+            if(field.isMandatory){
+                this.notificationService.showMessage(`The ${field.name} field is required.`,'Validation Error','error');  
+                formControl.reset();   
+             }
+      } else if (!isValid && !isEmpty) {
+        const hasValidEvents = field.events && field.events.length === 1 && field.events[0].type === 'focusout';
+        const errorMessage =
+          field.isMandatory && hasValidEvents && formControl?.errors?.[rule]?.validationMessage
+            ? formControl.errors[rule].validationMessage
+            : this.errorMessages[rule];
+
+            if(field.isMandatory){
+                this.notificationService.showMessage(errorMessage, 'Validation Error', 'error');                     
+                formControl.reset();
+            }
       }
     }
   }
-  
+
+
   // Update validation rule for a specific element
-  static updateValidationRule(element: HTMLInputElement, isMandatory: boolean, renderer: Renderer2, events?: { type: string; validationRule: ValidationRules }[], formControl?: any): void {
-    // Update mandatory status via validator
-    if (formControl) {
-      const validator = isMandatory && events?.[0]?.validationRule ? this.getValidator(events[0].validationRule) : null;
+  updateValidationRule(
+    element: HTMLInputElement,
+    field: FormFieldConfig,
+    isMandatory: boolean,
+    renderer: Renderer2,
+    formControl: AbstractControl
+  ): void {
+    if (formControl && field) {
+      const validator = isMandatory && field.events?.[0]?.validationRule
+        ? this.getValidator(field.events[0].validationRule, field.validationMessage, field.name)
+        : null;
       formControl.setValidators(validator ? [validator] : []);
       formControl.updateValueAndValidity();
     }
+  }
 
-    // Apply new validation rule using the first event's rule if events are provided
-    if (events && events.length > 0) {
-      renderer.listen(element, 'keypress', (e: Event) =>
-        this.handleEvent(e, events[0].validationRule, element, renderer)
-      );
-      renderer.listen(element, 'focusout', (e: Event) =>
-        this.handleEvent(e, events[0].validationRule, element, renderer)
-      );
-    }
-  }
-  static updateField(control: any, isMandatory: boolean, events?: { type: string; validationRule: ValidationRules }[]): void {
-    // Update mandatory status via validator
-    const validator = isMandatory && events?.[0]?.validationRule ? this.getValidator(events[0].validationRule) : null;
-    control.setValidators(validator ? [validator] : []);
-    control.updateValueAndValidity();
-  }
-  // Get ValidatorFn based on validation rule
-  static getValidator(rule: ValidationRules | undefined): ValidatorFn {
+
+ // Get ValidatorFn based on validation rule
+  private getValidator(rule: ValidationRules | undefined, customMessage?: string, fieldName?: string): ValidatorFn {
     if (!rule) return () => null;
-    return (control) => {
+    return (control: AbstractControl) => {
       const regex = this.regexMap[rule];
-      return regex.test(control.value) ? null : { [rule]: true };
+      if (!regex.test(control.value)) {
+        // Attach custom message for mandatory fields with valid events
+        return { [rule]: { valid: false, message: customMessage || this.errorMessages[rule] } };
+      }
+      return null;
     };
   }
 }
@@ -116,5 +163,6 @@ export class FormUtils {
 export interface FormFieldConfig {
   name: string;
   isMandatory?: boolean;
+  validationMessage?: string;
   events?: { type: string; validationRule: ValidationRules }[];
 }
