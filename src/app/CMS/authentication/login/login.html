@@ -14,7 +14,7 @@
         </span>
 
         <div class="wrap-input100 validate-input p-b-10" [class.alert-validate]="emailShowError" [attr.data-validate]="showEmail ? 'Email is required or invalid' : 'Mobile number is required or invalid'">
-            <input
+            <!-- <input
               pInputText
               #inputField
               id="emailOrMobile"
@@ -23,28 +23,27 @@
               [formControlName]="showEmail ? 'email' : 'mobile'"
               [placeholder]="showEmail ? 'Email' : 'Mobile Number'"
               (focus)="emailShowError = false"
-              />
-          <!-- @if (showEmail) {
+              /> -->
               <input
                 pInputText
                 #inputField
                 type="email"
                 class="input100"
                 formControlName="email"
+                [hidden]="!showEmail"
                 placeholder="Email"
                 (focus)="emailShowError = false"
               />
-          } @else {
             <input
                 pInputText
                 #inputField
                 type="tel"
                 class="input100"
                 formControlName="mobile"
+                [hidden]="showEmail"
                 placeholder="Mobile Number"
                 (focus)="emailShowError = false"
               />
-        } -->
 
               <span class="focus-input100"></span>
               <span class="symbol-input100" (click)="toggleEmailMobile()" style="cursor: pointer;">

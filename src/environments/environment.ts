@@ -10,13 +10,9 @@
 
 export const environment = {
   production: false,
-  environmentName: 'Localhost', 
-  reportServerUrl: 'https://chennaicbskendodev.amnex.com', 
-  //pnsUrl: 'https://localhost:44398',  //local
-  //pnsUrl: 'http://10.195.96.148:6017',//live
-  pnsUrl: 'https://chennaimasterdevapi.amnex.com/pns',
-  masterUrl: 'https://chennaimasterdevapi.amnex.com/master'
+  environmentName: 'Localhost' 
 };
 
-export const ExportExcelLogoCellMerge: string = "A1:A3";
+export const encryptionKey: any = "KBNova@2025!#$$";
+export const encryptionIv: any = "KBNova@2025!#$$";
 

@@ -3,10 +3,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { gsap } from 'gsap';
 import { SharedImports } from '../../shared/imports/shared-imports.ts';
-import { FormFieldConfig, FormUtils } from '../../shared/utilities/form-utils.ts.js';
+import { FormUtils } from '../../shared/utilities/form-utils.ts.js';
+import { FormFieldConfig } from '../../Interfaces/FormFieldConfig.js';
 import { ValidationRules } from '../../shared/utilities/validation-rules.enum.js';
 import { ToastrService } from 'ngx-toastr';
 import { NotificationService } from '../../services/notification.service.js';
+import { PopupMessageType } from '../../models/PopupMessageType.js';
 
 @Component({
   selector: 'app-login',
@@ -22,41 +24,28 @@ export class Login implements AfterViewInit {
 
   private fb = inject(FormBuilder);
   private renderer = inject(Renderer2);
-  private toastr = inject(ToastrService);
   private FormUtils = inject(FormUtils);
   loginForm: FormGroup;
   emailShowError = false;
   passwordShowError = false;
   showPassword = false; 
-  showEmail = false;
+  showEmail = true;
 
 
   // Form field configurations
   private formFields: FormFieldConfig[] = [
-    { name: 'email', isMandatory: true, validationMessage: 'Please enter a valid email address.', events: [{ type: 'focusout', validationRule: ValidationRules.EmailID }] },
-    { name: 'mobile', isMandatory: false,validationMessage: 'Please enter a valid mobile number.', events: [{ type: 'focusout', validationRule: ValidationRules.NumberOnly },{ type: 'keypress', validationRule: ValidationRules.NumberOnly }] },
-    { name: 'password', isMandatory: true, validationMessage: 'Password must be strong and meet all requirements.', events: [{ type: 'focusout', validationRule: ValidationRules.PasswordStrength }] },
-    // { name: 'password', isMandatory: true, events: [{ type: 'focusout', validationRule: ValidationRules.PasswordStrength }, { type: 'keypress', validationRule: ValidationRules.PasswordStrength }] },
+    { name: 'email', isMandatory: false, validationMessage: 'Please enter a valid email address.', events: [{ type: 'focusout', validationRule: ValidationRules.EmailID }] },
+    { name: 'mobile', isMandatory: false,validationMessage: 'Please enter a valid mobile number.', events: [{ type: 'keypress', validationRule: ValidationRules.NumberOnly },{ type: 'focusout', validationRule: ValidationRules.MobileNoWithSeries }] },
+    { name: 'password', isMandatory: true, validationMessage: 'Please enter a valid password', events: [] },
   ];
 
   constructor() {
-    // this.loginForm = this.fb.group({
-    //   email: ['', [Validators.required, Validators.email]],
-    //   mobile: ['', [Validators.pattern(/^\+?\d{10,15}$/)]], 
-    //   password: ['', Validators.required]
-    // });
     this.loginForm = this.FormUtils.createFormGroup(this.formFields, this.fb);
   }
   get email() { return this.loginForm.get('email'); }
   get password() { return this.loginForm.get('password'); }
   get mobile() { return this.loginForm.get('mobile'); }
 
-  // toggleEmailMobile(): void {
-  //   this.showEmail = !this.showEmail;
-  //   this.emailShowError = false;
-  //   this.loginForm.get('email')?.reset();
-  //   this.loginForm.get('mobile')?.reset();
-  // }
    toggleEmailMobile(): void {
     debugger;
     this.showEmail = !this.showEmail;
@@ -64,42 +53,25 @@ export class Login implements AfterViewInit {
     this.toggleFieldValidation();
   }
   togglePasswordVisibility(): void {
-    console.log('Icon clicked');
     this.showPassword = !this.showPassword;
   } 
   toggleFieldValidation() {
-    const fieldName = this.showEmail ? 'email' : 'mobile';
-    const field = this.formFields.find(f => f.name === fieldName);
-    const element = this.inputElements.first?.nativeElement as HTMLInputElement;
-    const control = this.loginForm.get(fieldName);
-    if (field && control && element) {
-      this.FormUtils.updateValidationRule(element, field, true, this.renderer, control);
-      control.reset();
-    }
-  }
-  private initFieldListeners(): void {
-  this.FormUtils.registerFormFieldEventListeners(
-    this.formFields,
-    this.inputElements.toArray(),
-    this.renderer,
-    this.loginForm
-  );
-  this.toggleFieldValidation();
-}
-  ngAfterViewInit() {
-      // this.FormUtils.registerFormFieldEventListeners(this.formFields, this.inputElements.toArray(), this.renderer,this.loginForm);
-      // this.toggleFieldValidation();
-        // Run once when the view first initializes
-  this.initFieldListeners();
+  const fieldName = this.showEmail ? 'email' : 'mobile';
+  const field = this.formFields.find(f => f.name === fieldName);
+  const control = this.loginForm.get(fieldName);
+  const element = this.inputElements.find(
+    (el) => el.nativeElement.getAttribute('formControlName') === fieldName
+  )?.nativeElement as HTMLInputElement | undefined;
 
-  // Re-run when the inputs change (e.g. showEmail toggles)
-  this.inputElements.changes.subscribe(() => {
-    this.initFieldListeners();
-  });
-    // Debug: Log inputElements
-    console.log('inputElements:', this.inputElements.toArray().map(el => ({
-      formControlName: el.nativeElement.getAttribute('formControlName')
-    })));
+  if (field && control && element) {
+    this.FormUtils.updateValidationRule(element, field, true, this.renderer, control);
+    control.reset();
+  }
+  }
+  ngAfterViewInit() {
+      this.FormUtils.registerFormFieldEventListeners(this.formFields, this.inputElements.toArray(), this.renderer,this.loginForm);
+      this.toggleFieldValidation();
+
       const inputs = document.querySelectorAll('.p-inputtext');
       inputs.forEach((input) => {
         input.addEventListener('focus', () => {
@@ -117,7 +89,7 @@ export class Login implements AfterViewInit {
               gsap.to(input, { duration: 0.3, boxShadow: 'none', opacity: 1 });
               const symbol = input.parentElement?.querySelector('.symbol-input100 i');
               if (symbol) {
-                    gsap.to(symbol, { duration: 0.4, color: '#666666' }); // Revert to normal color
+                    gsap.to(symbol, { duration: 0.4, color: '#666666' }); 
              }
         });
         });
@@ -174,7 +146,13 @@ export class Login implements AfterViewInit {
   }
 
  onSubmit() {
-  this.toastr.success('This is a success toast!', 'Success')
+  const formData = this.FormUtils.getAllFormFieldData(this.formFields, this.loginForm, this.inputElements.toArray());
+  // this.notificationService.showMessage(JSON.stringify(formData), 'Form Data', PopupMessageType.Info);
+  const outcome = this.FormUtils.validateFormFields(this.formFields, this.loginForm, this.inputElements.toArray(), this.renderer);
+  console.log('Validation Outcome:', outcome);
+    if (outcome.isError) {
+      this.notificationService.showMessage(outcome.strMessage, outcome.title, outcome.type);
+    }
   if (this.loginForm.valid && (this.showEmail ? this.email?.valid : this.mobile?.valid)) {
     console.log('Login submitted', this.showEmail ? { email: this.email?.value, password: this.password?.value } : { mobile: this.mobile?.value, password: this.password?.value });
   } else {
