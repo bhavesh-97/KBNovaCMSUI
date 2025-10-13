@@ -95,11 +95,9 @@ export class FormUtils {
     field: FormFieldConfig,
     formControl: AbstractControl
   ): void {
-    debugger
     const regex = this.regexMap[rule];
     if (!regex) return;
     if (event.type === 'keypress') {
-      console.log(event);
       const char = (event as KeyboardEvent).key;
       if (!regex.test(char)) {   
         event.preventDefault(); 
@@ -109,7 +107,7 @@ export class FormUtils {
     if (event.type === 'focusout') {
       const isEmpty = !element.value;
       const isValid = regex.test(element.value);
-debugger;
+
       if (field.isMandatory && isEmpty) {
             if(field.isMandatory){
                 this.notificationService.showMessage(`The ${field.name} field is required.`,'Validation Error',PopupMessageType.Error);  
@@ -153,7 +151,7 @@ debugger;
   formControl: AbstractControl
 ): void {
   if (!formControl || !field) return;
- debugger
+ 
   field.isMandatory = isMandatory;
 
   // 1️⃣ Update validators
@@ -275,7 +273,6 @@ debugger;
     }
     for (const [index, field] of formFields.entries()) {
       
-debugger;
       const fieldName = field.name;
       const element = elementRefs?.[index]?.nativeElement as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
       const label = element?.previousElementSibling?.tagName.toLowerCase() === 'label'
@@ -292,12 +289,10 @@ debugger;
       }
 
       if (field.isMandatory) {
-        debugger
+        
         if (element?.getAttribute('type')?.toLowerCase() === 'file') {
           if (!fieldValue || (typeof fieldValue === 'object' && !fieldValue.FilePath) && !(fieldValue?.FilePath?.includes('CouchDB'))) {
             const msg = `${label} is required and cannot be empty.`;
-            
-            console.log(msg);
             return { isError: true, strMessage: msg, title: PopupMessageType.Error, type: PopupMessageType.Error };
           }
         } else if (element?.getAttribute('type')?.toLowerCase() === 'radio') {
@@ -330,8 +325,6 @@ debugger;
         for (const event of field.events) {
           if (event.validationRule && this.regexMap[event.validationRule] && !this.regexMap[event.validationRule].test(fieldValue)) {
             const msg = field.validationMessage || `Please enter a valid ${label}.`;
-            
-            console.log(msg);
             return { isError: true, strMessage: msg, title: PopupMessageType.Error, type: PopupMessageType.Error };
           }
         }

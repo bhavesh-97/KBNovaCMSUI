@@ -39,15 +39,15 @@ export class Login implements AfterViewInit {
     { name: 'password', isMandatory: true, validationMessage: 'Please enter a valid password', events: [] },
   ];
 
-  constructor() {
-    this.loginForm = this.FormUtils.createFormGroup(this.formFields, this.fb);
-  }
   get email() { return this.loginForm.get('email'); }
   get password() { return this.loginForm.get('password'); }
   get mobile() { return this.loginForm.get('mobile'); }
 
+  constructor() {
+    this.loginForm = this.FormUtils.createFormGroup(this.formFields, this.fb);
+  }
    toggleEmailMobile(): void {
-    debugger;
+    
     this.showEmail = !this.showEmail;
     this.emailShowError = false;
     this.toggleFieldValidation();
