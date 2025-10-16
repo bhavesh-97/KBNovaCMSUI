@@ -2,10 +2,12 @@ import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListen
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
+import { encryptionInterceptor } from '../app/CMS/interceptors/encryption-interceptor';
 import Aura from '@primeuix/themes/aura';
 import { provideToastr } from 'ngx-toastr';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideAnimationsAsync('animations'),
@@ -13,6 +15,11 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
+     provideHttpClient(
+      withInterceptors([
+        encryptionInterceptor  
+      ])
+    ),
     providePrimeNG({
             theme: {
                 preset: Aura,
@@ -34,5 +41,4 @@ export const appConfig: ApplicationConfig = {
 })
   ]
 };
-
 

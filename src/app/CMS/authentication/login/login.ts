@@ -1,13 +1,14 @@
 import { Component, AfterViewInit, inject, ElementRef,ViewChild, QueryList, ViewChildren,Renderer2 } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { gsap } from 'gsap';
 import { SharedImports } from '../../shared/imports/shared-imports.ts';
 import { FormUtils } from '../../shared/utilities/form-utils.ts.js';
 import { FormFieldConfig } from '../../Interfaces/FormFieldConfig.js';
 import { ValidationRules } from '../../shared/utilities/validation-rules.enum.js';
-import { ToastrService } from 'ngx-toastr';
 import { NotificationService } from '../../services/notification.service.js';
+import { MUserLogin } from '../../models/MUserLogin.js';
+import { LoginService } from './login.service.js';
 import { PopupMessageType } from '../../models/PopupMessageType.js';
 
 @Component({
@@ -25,6 +26,8 @@ export class Login implements AfterViewInit {
   private fb = inject(FormBuilder);
   private renderer = inject(Renderer2);
   private FormUtils = inject(FormUtils);
+  private loginService = inject(LoginService);
+
   loginForm: FormGroup;
   emailShowError = false;
   passwordShowError = false;
@@ -144,10 +147,38 @@ export class Login implements AfterViewInit {
       gsap.from(img, { duration: 1, scale: 0.8, opacity: 0, ease: 'back.out(1.7)' });
     }
   }
-
+ onLogin(loginModel: MUserLogin): void {
+    this.loginService.GetUserLogin(loginModel,true).subscribe({
+      next: (res) => {
+        if (res.isError) {
+          // ❌ Show error notification
+          this.notificationService.showMessage(res.strMessage, res.title, res.type);
+        } else {
+          // ✅ Success
+          this.notificationService.showMessage(res.strMessage, res.title, res.type);
+          console.log('✅ Login success:', res.strMessage);
+        }
+      },
+      error: (err) => {
+        console.error('❌ Login error:', err);
+        this.notificationService.showMessage(
+          'Something went wrong while connecting to the server.',
+          'Error',
+          PopupMessageType.Error
+        );
+      }
+    });
+  }
  onSubmit() {
   const formData = this.FormUtils.getAllFormFieldData(this.formFields, this.loginForm, this.inputElements.toArray());
   // this.notificationService.showMessage(JSON.stringify(formData), 'Form Data', PopupMessageType.Info);
+  
+  
+    const loginModel = new MUserLogin();
+    loginModel.emailID = formData['email'] || '';
+    loginModel.mobileNumber = formData['mobile'] || 0;
+    loginModel.password = formData['password'] || '';
+    this.onLogin(loginModel);
   const outcome = this.FormUtils.validateFormFields(this.formFields, this.loginForm, this.inputElements.toArray(), this.renderer);
   console.log('Validation Outcome:', outcome);
     if (outcome.isError) {

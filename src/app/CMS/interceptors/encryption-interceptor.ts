@@ -1,45 +1,45 @@
-import { inject, Inject, Injectable } from '@angular/core';
-import {
-  HttpInterceptor,
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpResponse
-} from '@angular/common/http';
-import { Observable, map } from 'rxjs';
-import { Encryption } from '../services/encryption'; // Adjust path if needed
+import { HttpInterceptorFn, HttpRequest, HttpHandler, HttpResponse, HttpContextToken } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { map } from 'rxjs';
+import { Encryption } from '../services/encryption';
 
-@Injectable()
-export class encryptionInterceptor implements HttpInterceptor {
-  public encryption = inject(Encryption);
+// Context token to mark requests for encryption
+export const ENCRYPTION_CONTEXT = new HttpContextToken<boolean>(() => false);
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let modifiedReq = req;
+export const encryptionInterceptor: HttpInterceptorFn = (req, next) => {
+  const encryption = inject(Encryption);
+  const encryptPayload = req.context.get(ENCRYPTION_CONTEXT);
 
-    //  Encrypt request body (if exists)
-    if (req.body) {
-      try {
-        const encryptedPayload = this.encryption.frontEncryptEncode(JSON.stringify(req.body));
-        modifiedReq = req.clone({ body: { payload: encryptedPayload } });
-      } catch (err) {
-        console.error('Encryption failed:', err);
-      }
+  let modifiedReq = req;
+
+  if (encryptPayload) {
+    // Add custom header
+    modifiedReq = modifiedReq.clone({
+      headers: modifiedReq.headers.set('X-Encrypt-Payload', 'true')
+    });
+
+    // Encrypt body for POST/PUT/DELETE
+    if (['POST', 'PUT', 'DELETE'].includes(req.method) && req.body) {
+      const encrypted = encryption.frontEncryptEncode(JSON.stringify(req.body));
+      modifiedReq = modifiedReq.clone({ body: encrypted });
     }
+  }
 
-    //  Decrypt response payload
-    return next.handle(modifiedReq).pipe(
-      map(event => {
-        if (event instanceof HttpResponse && event.body?.payload) {
+  // Decrypt response
+  return next(modifiedReq).pipe(
+    map(event => {
+      if (encryptPayload && event instanceof HttpResponse) {
+        const body = event.body;
+        if (typeof body === 'string') {
           try {
-            const decryptedJson = this.encryption.frontDecryptDecode(event.body.payload);
-            const decryptedData = JSON.parse(decryptedJson);
-            return event.clone({ body: decryptedData });
+            const decrypted = encryption.frontDecryptDecode(body);
+            return event.clone({ body: JSON.parse(decrypted) });
           } catch (err) {
             console.error('Decryption failed:', err);
           }
         }
-        return event;
-      })
-    );
-  }
-}
+      }
+      return event;
+    })
+  );
+};
