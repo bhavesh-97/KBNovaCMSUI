@@ -7,7 +7,8 @@ import Aura from '@primeuix/themes/aura';
 import { provideToastr } from 'ngx-toastr';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
+import { LoadingInterceptor } from './CMS/interceptors/loading.interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideAnimationsAsync('animations'),
@@ -20,6 +21,7 @@ export const appConfig: ApplicationConfig = {
         encryptionInterceptor  
       ])
     ),
+    { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
     providePrimeNG({
             theme: {
                 preset: Aura,

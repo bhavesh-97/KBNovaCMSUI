@@ -1,6 +1,7 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { LoaderService } from './CMS/services/loader.service';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet,ButtonModule],
@@ -9,7 +10,8 @@ import { ButtonModule } from 'primeng/button';
 })
 export class App implements OnInit{
   protected readonly title = signal('KBNovaCMSUI');
-
+  public LoaderService = inject(LoaderService);
+  loading$ = this.LoaderService.loading$;
   ngOnInit(): void {
     // Call setFavicon on initialization
     this.setFavicon('./assets/images/product/KBNova.png');
