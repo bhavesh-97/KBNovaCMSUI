@@ -14,19 +14,22 @@ export class App implements OnInit{
   loading$ = this.LoaderService.loading$;
   ngOnInit(): void {
     // Call setFavicon on initialization
-    this.setFavicon('./assets/images/product/KBNova.png');
+    const sizes = ['16x16', '32x32', '64x64'];
+    sizes.forEach(size => this.setFavicon(`../assets/images/product/To the Source Icon.png`, size));
+    // this.setFavicon('../assets/images/product/To the Source Icon.png');
   }
 
-  setFavicon(iconUrl: string) {
-    let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
-    
-    if (!link) {
-      link = document.createElement('link');
-      link.rel = 'icon';
-      document.getElementsByTagName('head')[0].appendChild(link);
-    }
-    
-    link.type = 'image/x-icon';
-    link.href = iconUrl;
+ setFavicon(iconUrl: string, size: string = '32x32') {
+  let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
+
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'icon';
+    document.getElementsByTagName('head')[0].appendChild(link);
   }
+
+  link.type = 'image/png';
+  link.href = iconUrl;
+  link.sizes = size; // e.g., '16x16', '32x32', '64x64'
+}
 }
