@@ -174,88 +174,105 @@ export class FormUtils {
   }
  
   // Get all form field data from FormGroup or plain object
-  public getAllFormFieldData(
+  public getAllFormFieldData<T = { [key: string]: any }>(
     formFields: FormFieldConfig[],
     formData: FormGroup | { [key: string]: any },
-    elementRefs?: ElementRef[]
-  ): { [key: string]: any } {
-    const result: { [key: string]: any } = {};
+    elementRefs?: ElementRef[],
+    modelType?: new () => T
+  ): T {
+  // If modelType is provided, instantiate it; otherwise fallback to plain object
+  const model: T = modelType ? new modelType() : ({} as T);
 
-    try {
-      if (!formFields || !Array.isArray(formFields)) {
-        this.notificationService.showMessage('Invalid or missing formFields array.', 'Validation Error', PopupMessageType.Error);
-        return result;
-      }
-
-      if (!formData || typeof formData !== 'object') {
-        this.notificationService.showMessage('Invalid or missing formData object.', 'Validation Error', PopupMessageType.Error);
-        return result;
-      }
-
-      formFields.forEach((field, index) => {
-        try {
-          let value: any;
-          const fieldName = field.name;
-          const isReactiveForm = formData instanceof FormGroup;
-          let element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null = null;
-
-          if (elementRefs && elementRefs[index]) {
-            element = elementRefs[index].nativeElement;
-          }
-
-          if (isReactiveForm) {
-            const control = (formData as FormGroup).get(fieldName);
-            value = control ? control.value : null;
-          } else {
-            value = (formData as { [key: string]: any })[fieldName] || null;
-          }
-
-          if (element && (!isReactiveForm || !value)) {
-            const tagName = element.tagName.toLowerCase();
-            const type = element.getAttribute('type')?.toLowerCase();
-
-            if (tagName === 'input' && ['text', 'password', 'hidden', 'month', 'email', 'tel'].includes(type || '')) {
-              value = element.value || null;
-            } else if (tagName === 'textarea') {
-              value = element.value || null;
-            } else if (tagName === 'input' && type === 'radio') {
-              if (elementRefs) {
-                const radioElements = elementRefs.filter(
-                  el => el.nativeElement.getAttribute('name') === fieldName && el.nativeElement.type === 'radio'
-                );
-                value = radioElements.find(el => (el.nativeElement as HTMLInputElement).checked)?.nativeElement.value || null;
-              }
-            } else if (tagName === 'input' && type === 'checkbox') {
-              value = (element as HTMLInputElement).checked;
-            } else if (tagName === 'input' && type === 'file') {
-              value = (formData as { [key: string]: any })[fieldName] || null;
-            } else if (tagName === 'select') {
-              const isMultiple = element.hasAttribute('multiple');
-              if (isMultiple) {
-                value = Array.from((element as HTMLSelectElement).selectedOptions).map(option => option.value) || [];
-              } else {
-                value = (element as HTMLSelectElement).value || '0';
-              }
-            } else if (tagName === 'button' || (tagName === 'input' && ['button', 'submit'].includes(type || ''))) {
-              value = element.value || element.textContent || '';
-            }
-          }
-
-          result[fieldName] = value;
-        } catch (fieldError) {
-          this.notificationService.showMessage(
-            `Error processing field with name: ${field.name}`,
-            'Validation Error',
-            PopupMessageType.Error
-          );
-        }
-      });
-    } catch (error) {
-      this.notificationService.showMessage('Error in getAllFormFieldData function.', 'Validation Error', PopupMessageType.Error);
+  try {
+    if (!formFields || !Array.isArray(formFields)) {
+      this.notificationService.showMessage(
+        'Invalid or missing formFields array.',
+        'Validation Error',
+        PopupMessageType.Error
+      );
+      return model;
     }
 
-    return result;
+    if (!formData || typeof formData !== 'object') {
+      this.notificationService.showMessage(
+        'Invalid or missing formData object.',
+        'Validation Error',
+        PopupMessageType.Error
+      );
+      return model;
+    }
+
+    formFields.forEach((field, index) => {
+      try {
+        let value: any;
+        const fieldName = field.name;
+        const isReactiveForm = formData instanceof FormGroup;
+        let element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null = null;
+
+        if (elementRefs && elementRefs[index]) {
+          element = elementRefs[index].nativeElement;
+        }
+
+        // Get value from form
+        if (isReactiveForm) {
+          const control = (formData as FormGroup).get(fieldName);
+          value = control ? control.value : null;
+        } else {
+          value = (formData as { [key: string]: any })[fieldName] || null;
+        }
+
+        // Fallback to element values if needed
+        if (element && (value === null || value === undefined)) {
+          const tagName = element.tagName.toLowerCase();
+          const type = element.getAttribute('type')?.toLowerCase();
+
+          if (tagName === 'input' && ['text', 'password', 'hidden', 'month', 'email', 'tel'].includes(type || '')) {
+            value = element.value || null;
+          } else if (tagName === 'textarea') {
+            value = element.value || null;
+          } else if (tagName === 'input' && type === 'radio') {
+            if (elementRefs) {
+              const radioElements = elementRefs.filter(
+                el => el.nativeElement.getAttribute('name') === fieldName && el.nativeElement.type === 'radio'
+              );
+              value = radioElements.find(el => (el.nativeElement as HTMLInputElement).checked)?.nativeElement.value || null;
+            }
+          } else if (tagName === 'input' && type === 'checkbox') {
+            value = (element as HTMLInputElement).checked;
+          } else if (tagName === 'input' && type === 'file') {
+            value = (formData as { [key: string]: any })[fieldName] || null;
+          } else if (tagName === 'select') {
+            const isMultiple = element.hasAttribute('multiple');
+            if (isMultiple) {
+              value = Array.from((element as HTMLSelectElement).selectedOptions).map(option => option.value) || [];
+            } else {
+              value = (element as HTMLSelectElement).value || '0';
+            }
+          } else if (tagName === 'button' || (tagName === 'input' && ['button', 'submit'].includes(type || ''))) {
+            value = element.value || element.textContent || '';
+          }
+        }
+
+        (model as any)[fieldName] = value;
+      } catch (fieldError) {
+        this.notificationService.showMessage(
+          `Error processing field with name: ${field.name}`,
+          'Validation Error',
+          PopupMessageType.Error
+        );
+      }
+    });
+  } catch (error) {
+    this.notificationService.showMessage(
+      'Error in getAllFormFieldData function.',
+      'Validation Error',
+      PopupMessageType.Error
+    );
   }
+
+  return model;
+}
+
   // Validate form fields based on configurations
   public validateFormFields(
     formFields: FormFieldConfig[],

@@ -42,9 +42,9 @@ export class Login implements AfterViewInit {
     { name: 'password', isMandatory: true, validationMessage: 'Please enter a valid password', events: [] },
   ];
 
-  get email() { return this.loginForm.get('email'); }
-  get password() { return this.loginForm.get('password'); }
-  get mobile() { return this.loginForm.get('mobile'); }
+  // get email() { return this.loginForm.get('email'); }
+  // get mobile() { return this.loginForm.get('mobile'); }
+  // get password() { return this.loginForm.get('password'); }
 
   constructor() {
     this.loginForm = this.FormUtils.createFormGroup(this.formFields, this.fb);
@@ -147,20 +147,22 @@ export class Login implements AfterViewInit {
       gsap.from(img, { duration: 1, scale: 0.8, opacity: 0, ease: 'back.out(1.7)' });
     }
   }
- onLogin(loginModel: MUserLogin): void {
-    this.loginService.GetUserLogin(loginModel,true).subscribe({
+  onSubmit() {
+  const outcome = this.FormUtils.validateFormFields(this.formFields, this.loginForm, this.inputElements.toArray(), this.renderer);
+    if (outcome.isError) {
+      this.notificationService.showMessage(outcome.strMessage, outcome.title, outcome.type);
+      return;
+    }  
+  const loginModel = this.FormUtils.getAllFormFieldData(this.formFields, this.loginForm, this.inputElements.toArray(), MUserLogin);
+  this.loginService.GetUserLogin(loginModel).subscribe({
       next: (res) => {
         if (res.isError) {
-          // ❌ Show error notification
           this.notificationService.showMessage(res.strMessage, res.title, res.type);
         } else {
-          // ✅ Success
           this.notificationService.showMessage(res.strMessage, res.title, res.type);
-          console.log('✅ Login success:', res.strMessage);
         }
       },
       error: (err) => {
-        console.error('❌ Login error:', err);
         this.notificationService.showMessage(
           'Something went wrong while connecting to the server.',
           'Error',
@@ -169,29 +171,4 @@ export class Login implements AfterViewInit {
       }
     });
   }
- onSubmit() {
-  const formData = this.FormUtils.getAllFormFieldData(this.formFields, this.loginForm, this.inputElements.toArray());
-  // this.notificationService.showMessage(JSON.stringify(formData), 'Form Data', PopupMessageType.Info);
-  
-  
-    const loginModel = new MUserLogin();
-    loginModel.emailID = formData['email'] || '';
-    loginModel.mobileNumber = formData['mobile'] || 0;
-    loginModel.password = formData['password'] || '';
-    this.onLogin(loginModel);
-  const outcome = this.FormUtils.validateFormFields(this.formFields, this.loginForm, this.inputElements.toArray(), this.renderer);
-  console.log('Validation Outcome:', outcome);
-    if (outcome.isError) {
-      this.notificationService.showMessage(outcome.strMessage, outcome.title, outcome.type);
-    }
-  if (this.loginForm.valid && (this.showEmail ? this.email?.valid : this.mobile?.valid)) {
-    console.log('Login submitted', this.showEmail ? { email: this.email?.value, password: this.password?.value } : { mobile: this.mobile?.value, password: this.password?.value });
-  } else {
-    this.emailShowError = this.showEmail ? this.email?.invalid || false : this.mobile?.invalid || false;
-    this.passwordShowError = this.password?.invalid || false;
-    Object.keys(this.loginForm.controls).forEach(key => {
-      this.loginForm.get(key)?.markAsTouched();
-    });
-  }
-}
 }
