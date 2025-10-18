@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { PopupMessageType } from '../models/PopupMessageType';
-import { JsonResponseModel } from '../models/JsonResponseModel';
 
 
 @Injectable({

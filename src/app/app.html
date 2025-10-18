@@ -1,4 +1,5 @@
-@if (loading$) {
+@let isLoading = loading$ | async;
+@if (isLoading) {
   <div class="loader-overlay">
     <div class="spinner-container">
       <div class="spinner-ring"></div>

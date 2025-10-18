@@ -14,7 +14,15 @@ export class LoadingInterceptor implements HttpInterceptor {
     public loaderService = inject(LoaderService);
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    this.loaderService.show();
-    return next.handle(req).pipe(finalize(() => this.loaderService.hide()));
+    //  Skip loader for specific endpoints if needed
+    if (req.headers.has('X-No-Loader')) {
+      return next.handle(req);
+    }
+
+    this.loaderService.startRequest();
+
+    return next.handle(req).pipe(
+      finalize(() => this.loaderService.endRequest())
+    );
   }
 }

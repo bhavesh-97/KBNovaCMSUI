@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { encryptionKey,encryptionIv } from '../../../environments/environment';
+import { encryptionKey,encryptionIv } from '../../../src/environments/environment';
 import * as CryptoJS from 'crypto-js';
 @Injectable({
   providedIn: 'root'

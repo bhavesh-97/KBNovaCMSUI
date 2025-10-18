@@ -2,13 +2,13 @@ import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListen
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
-import { encryptionInterceptor } from '../app/CMS/interceptors/encryption-interceptor';
+import { encryptionInterceptor } from '../app/interceptors/encryption-interceptor';
 import Aura from '@primeuix/themes/aura';
 import { provideToastr } from 'ngx-toastr';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
-import { LoadingInterceptor } from './CMS/interceptors/loading.interceptor';
+import { LoadingInterceptor } from '../app/interceptors/loading.interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideAnimationsAsync('animations'),
@@ -19,7 +19,8 @@ export const appConfig: ApplicationConfig = {
      provideHttpClient(
       withInterceptors([
         encryptionInterceptor  
-      ])
+      ]),
+      withInterceptorsFromDi()
     ),
     { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
     providePrimeNG({
@@ -33,14 +34,14 @@ export const appConfig: ApplicationConfig = {
             }
     }),
    provideToastr({
-  timeOut: 5000,
-  positionClass: 'toast-top-right',
-  preventDuplicates: true,
-  closeButton: true,
-  progressBar: true,         // <-- must be true
-  tapToDismiss: true,
-  toastClass: 'ngx-toastr toast-animate',
-})
+        timeOut: 5000,
+        positionClass: 'toast-top-right',
+        preventDuplicates: true,
+        closeButton: true,
+        progressBar: true, 
+        tapToDismiss: true,
+        toastClass: 'ngx-toastr toast-animate',
+    })
   ]
 };
 

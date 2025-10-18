@@ -1,6 +1,6 @@
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { MUserLogin } from '../../models/MUserLogin.js';
 import { Observable } from 'rxjs/internal/Observable';
 import { JsonResponseModel } from '../../models/JsonResponseModel';
@@ -20,7 +20,6 @@ export class LoginService {
 //         return this.http.get<JsonResponseModel>(`${this.baseUrl}/Login/Login`, { params, context: new HttpContext().set(ENCRYPTION_CONTEXT, encryptPayload) });
 //     }
       GetUserLogin(loginModel: MUserLogin, encryptPayload = false): Observable<JsonResponseModel> {
-        debugger;
         return this.http.post<JsonResponseModel>(`${this.baseUrl}/Login/Login`,loginModel,                    
                                                       { context: new HttpContext().set(ENCRYPTION_CONTEXT, encryptPayload) }
             );

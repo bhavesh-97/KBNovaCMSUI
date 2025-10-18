@@ -8,7 +8,7 @@ export const CMSRoutes: Routes = [
      },
      {
             path: 'login',
-            loadComponent: () => import('./authentication/login/login').then(m => m.Login)
+            loadComponent: () => import('../authentication/login/login').then(m => m.Login)
      },
      {
             path: 'dashboard',
