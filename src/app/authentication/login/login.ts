@@ -2,7 +2,7 @@ import { Component, AfterViewInit, inject, ElementRef,ViewChild, QueryList, View
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { gsap } from 'gsap';
-import { SharedImports } from '../../shared/imports/shared-imports.ts';
+import { SharedImports } from '../../shared/imports/shared-imports';
 import { FormUtils } from '../../shared/utilities/form-utils.ts.js';
 import { FormFieldConfig } from '../../Interfaces/FormFieldConfig.js';
 import { ValidationRules } from '../../shared/utilities/validation-rules.enum.js';
