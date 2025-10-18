@@ -67,6 +67,10 @@ export class Login implements AfterViewInit {
   )?.nativeElement as HTMLInputElement | undefined;
 
   if (field && control && element) {
+    control.markAsDirty();
+    control.markAsTouched();
+    control.updateValueAndValidity();
+    
     this.FormUtils.updateValidationRule(element, field, true, this.renderer, control);
     control.reset();
   }
